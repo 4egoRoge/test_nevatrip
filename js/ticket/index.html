@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <form id="form">
+        <div class="input-group mb-3">
+            <select name="route" id="route">
+                <option value="из A в B" selected>из A в B</option>
+                <option value="из B в A">из B в A</option>
+                <option value="из A в B и обратно в А">из A в B и обратно в А</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <label for="time" class="textTimeAB">Выберите время</label>
+            <select name="time" id="time">
+            </select>
+        </div>
+        <div class="input-group mb-3 container-timeBA hidden">
+            <label for="timeBA" class="textTimeBA">Выберите время</label>
+            <select name="timeBA" id="timeBA">
+            </select>
+        </div>
+        <label for="num">Количество билетов</label>
+        <input id="num">
+        <button type="submit">Посчитать</button>
+    </form>
+    <p class="total"></p>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+    <script>
+
+        let select = document.getElementById("time"); 
+
+        const optionsAB = [new Date('2021-08-21T18:00+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T18:30+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T18:45+03:00').toLocaleTimeString().slice(0,-3), new Date('2021-08-21T19:00+03:00').toLocaleTimeString().slice(0,-3), new Date('2021-08-21T19:15+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T21:00+03:00').toLocaleTimeString().slice(0,-3)];
+        const optionsBA = [new Date('2021-08-21T18:30+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T18:45+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T19:00+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T19:15+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T19:35+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T21:50+03:00').toLocaleTimeString().slice(0,-3),new Date('2021-08-21T21:55+03:00').toLocaleTimeString().slice(0,-3)];
+
+        let containerTimeBA = document.querySelector(".container-timeBA")
+        let selectTimeAB = optionsAB
+        
+
+        for(let i = 0; i < selectTimeAB.length; i++) {
+            let opt = selectTimeAB[i];
+            let el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        };
+
+        let selectTimeBA = optionsBA
+        let selectBA = document.getElementById("timeBA");
+
+        for(let i = 2; i < selectTimeBA.length; i++) {
+            let opt = selectTimeBA[i];
+            let el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            selectBA.appendChild(el);
+        };
+
+        let selectTime = document.getElementById('time').value;
+
+        let elem = document.querySelector('#route');
+        elem.addEventListener('change', function() {
+            document.getElementById('time').innerHTML=''
+	        let selectedOption = (this.value);
+            let options = optionsAB
+            if (selectedOption == "из A в B и обратно в А") {
+            containerTimeBA.classList.remove('hidden');
+            document.querySelector('.textTimeAB').textContent = "Выберите время отправления из А в В"
+            document.querySelector('.textTimeBA').textContent = "Выберите время отправления из B в A"
+        } else {
+            containerTimeBA.classList.add('hidden');
+            document.querySelector('.textTimeAB').textContent = "Выберите время"
+        }
+
+            if(selectedOption == "из A в B") {
+            options = optionsAB
+        } else if (selectedOption == "из B в A") {
+            options = optionsBA
+        }
+
+        for(let i = 0; i < options.length; i++) {
+            let opt = options[i];
+            let el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        };
+        });
+
+        let elemBA = document.querySelector('#time');
+        elemBA.addEventListener('change', function() {
+            document.getElementById('timeBA').innerHTML=''
+            let selectedOptionAB = (this.value);
+            let optionsTwo = optionsBA
+            let timeDispatchAB = `2021-08-21T`+selectedOptionAB+`+05:00`
+            let dateStrAB = new Date(timeDispatchAB)
+            dateStrAB.setMinutes(dateStrAB.getMinutes() + 50);
+            let timeArriveBA = dateStrAB.toLocaleTimeString().slice(0,-3)
+        for(let i = 0; i < selectTimeBA.length; i++) {
+            let opt = selectTimeBA[i];
+            if(opt > timeArriveBA) {
+            let el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            selectBA.appendChild(el);
+            };
+        }
+        })
+
+        const form = document.getElementById("form")
+        let totalParagraph = document.querySelector('.total');   
+               
+        form.onsubmit = function(evt) {
+            evt.preventDefault();
+            const route = document.getElementById("route").value;
+            const time = document.getElementById("time").value; 
+            const numTickets = document.getElementById("num").value;
+            let timeDispatch = `2021-08-21T`+time+`+05:00`
+            let dateStr = new Date(timeDispatch)
+            dateStr.setMinutes(dateStr.getMinutes() + 50);
+            let timeArrive = dateStr.toLocaleTimeString().slice(0,-3)
+
+            const timeBA = document.getElementById("timeBA").value; 
+            let timeBADispatch = `2021-08-21T`+timeBA+`+05:00`
+            let dateStrBA = new Date(timeBADispatch)
+            dateStrBA.setMinutes(dateStrBA.getMinutes() + 50);
+            let timeArriveAB = dateStrBA.toLocaleTimeString().slice(0,-3)
+
+            let price
+            let travelTime
+            if( route === "из A в B и обратно в А") {
+                price = 1200
+                travelTime = '1 час 40 минут'
+            } else {
+                price = 700
+                travelTime = '50 минут'
+                
+            }
+            
+            const orderPrice = price * numTickets;
+
+            if( route === "из A в B и обратно в А") {
+            totalParagraph.textContent = `Вы выбрали ` + numTickets + ` билета по маршруту ` + route + ` стоимостью ` + orderPrice +`р.` + ` Это путешествие займет у вас ` + travelTime + ` Теплоход отправляется из A в `+ time +` а прибудет в B ` + timeArrive + `. Обратно теплоход отправляется из B в `+ timeBA +` а прибудет в A `+ timeArriveAB+`.`
+            } else totalParagraph.textContent = `Вы выбрали ` + numTickets + ` билета по маршруту ` + route + ` стоимостью ` + orderPrice +`р.` + ` Это путешествие займет у вас ` + travelTime + ` Теплоход отправляется в `+ time +` а прибудет в ` + timeArrive + `.`
+        }
+    </script>
+</body>
+
+</html>
